@@ -99,7 +99,7 @@ public class PlaintextChannelBuilder implements ChannelBuilder {
             // listenerName should only be null in Client mode where principal() should not be called
             if (listenerName == null)
                 throw new IllegalStateException("Unexpected call to principal() when listenerName is null");
-            return principalBuilder.build(new PlaintextAuthenticationContext(clientAddress, listenerName.value()));
+            return principalBuilder.build(new PlaintextAuthenticationContext(clientAddress, listenerName.value(), transportLayer));
         }
 
         @Override

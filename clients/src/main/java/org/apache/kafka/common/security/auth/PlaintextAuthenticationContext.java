@@ -17,14 +17,33 @@
 package org.apache.kafka.common.security.auth;
 
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
+
+import org.apache.kafka.common.network.PlaintextTransportLayer;
 
 public class PlaintextAuthenticationContext implements AuthenticationContext {
     private final InetAddress clientAddress;
     private final String listenerName;
+    private final String clientId;
 
-    public PlaintextAuthenticationContext(InetAddress clientAddress, String listenerName) {
+    public PlaintextAuthenticationContext(InetAddress clientAddress, String listenerName, PlaintextTransportLayer tpLayer) {
         this.clientAddress = clientAddress;
         this.listenerName = listenerName;
+
+        ByteBuffer test = ByteBuffer.allocate(2000);
+        try {
+            tpLayer.read(test);
+            test.getInt();
+            test.getInt();
+            test.getChar();
+            test.getChar();
+            test.getChar();
+
+            clientId = (String) test.getChar()
+
+        } catch (Exception e) {
+            System.out.println("@@@@ EXCEPTION authenticaiton context");
+        }
     }
 
     @Override
@@ -41,5 +60,7 @@ public class PlaintextAuthenticationContext implements AuthenticationContext {
     public String listenerName() {
         return listenerName;
     }
+
+    public String clientId() { return clientId; }
 
 }

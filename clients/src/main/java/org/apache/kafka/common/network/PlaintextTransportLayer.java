@@ -101,8 +101,10 @@ public class PlaintextTransportLayer implements TransportLayer {
     */
     @Override
     public int read(ByteBuffer dst) throws IOException {
-        System.out.println("@@@@@ MATHIEU" + Arrays.toString(dst.array()));
-        return socketChannel.read(dst);
+        int bytesRead = socketChannel.read(dst);
+        System.out.println("@@@@@ READ" + Arrays.toString(dst.array()));
+
+        return bytesRead;
     }
 
     /**
@@ -114,8 +116,10 @@ public class PlaintextTransportLayer implements TransportLayer {
      */
     @Override
     public long read(ByteBuffer[] dsts) throws IOException {
-        System.out.println("@@@@@ MATHIEU" + Arrays.toString(dsts));
-        return socketChannel.read(dsts);
+        long bytesRead = socketChannel.read(dsts);
+        System.out.println("@@@@@ READ" + Arrays.toString(dsts));
+
+        return bytesRead;
     }
 
     /**
@@ -128,9 +132,10 @@ public class PlaintextTransportLayer implements TransportLayer {
      */
     @Override
     public long read(ByteBuffer[] dsts, int offset, int length) throws IOException {
-        System.out.println("@@@@@ MATHIEU" + Arrays.toString(dsts));
+        long bytesRead = socketChannel.read(dsts, offset, length);
+        System.out.println("@@@@@ READ" + Arrays.toString(dsts));
 
-        return socketChannel.read(dsts, offset, length);
+        return bytesRead;
     }
 
     /**
