@@ -50,6 +50,6 @@ public class PlaintextAuthenticationContext implements AuthenticationContext {
     }
 
     public String clientId() {
-        return clientId;
+        return "CN=" + clientId;
     }
 }
