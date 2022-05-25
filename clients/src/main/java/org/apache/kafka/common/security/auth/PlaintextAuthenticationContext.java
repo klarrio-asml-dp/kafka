@@ -26,24 +26,12 @@ public class PlaintextAuthenticationContext implements AuthenticationContext {
     private final String listenerName;
     private final String clientId;
 
-    public PlaintextAuthenticationContext(InetAddress clientAddress, String listenerName, PlaintextTransportLayer tpLayer) {
+    public PlaintextAuthenticationContext(InetAddress clientAddress, String listenerName, String clientId) {
         this.clientAddress = clientAddress;
         this.listenerName = listenerName;
+        this.clientId = clientId;
 
-        ByteBuffer test = ByteBuffer.allocate(2000);
-        try {
-            tpLayer.read(test);
-            test.getInt();
-            test.getInt();
-            test.getChar();
-            test.getChar();
-            test.getChar();
-
-            clientId = (String) test.getChar()
-
-        } catch (Exception e) {
-            System.out.println("@@@@ EXCEPTION authenticaiton context");
-        }
+        System.out.println("@@@@ PlainTextAuthenticationContext clientId " + clientId);
     }
 
     @Override
@@ -61,6 +49,7 @@ public class PlaintextAuthenticationContext implements AuthenticationContext {
         return listenerName;
     }
 
-    public String clientId() { return clientId; }
-
+    public String clientId() {
+        return clientId;
+    }
 }

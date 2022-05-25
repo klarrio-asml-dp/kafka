@@ -2198,7 +2198,7 @@ public class SaslAuthenticatorTest {
             assertEquals(Collections.emptyList(), server.selector().channels());
             createClientConnection(securityProtocol, node);
             NetworkTestUtils.waitForChannelReady(selector, node);
-            assertEquals(expectedPrincipal, server.selector().channels().get(0).principal());
+            assertEquals(expectedPrincipal, server.selector().channels().get(0).principal(""));
             checkClientConnection(node);
         } finally {
             closeClientConnectionIfNecessary();

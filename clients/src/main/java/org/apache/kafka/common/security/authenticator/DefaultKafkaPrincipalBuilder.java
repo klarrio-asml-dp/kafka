@@ -71,6 +71,8 @@ public class DefaultKafkaPrincipalBuilder implements KafkaPrincipalBuilder, Kafk
         if (context instanceof PlaintextAuthenticationContext) {
             System.out.println("@@@@ BUILD principal");
             return new KafkaPrincipal(KafkaPrincipal.USER_TYPE, ((PlaintextAuthenticationContext) context).clientId());
+//            return KafkaPrincipal.ANONYMOUS;
+
         } else if (context instanceof SslAuthenticationContext) {
             SSLSession sslSession = ((SslAuthenticationContext) context).session();
             try {

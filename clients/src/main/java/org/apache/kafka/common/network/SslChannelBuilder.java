@@ -149,7 +149,7 @@ public class SslChannelBuilder implements ChannelBuilder, ListenerReconfigurable
          * @return the built principal
          */
         @Override
-        public KafkaPrincipal principal() {
+        public KafkaPrincipal principal(String clientId) {
             InetAddress clientAddress = transportLayer.socketChannel().socket().getInetAddress();
             // listenerName should only be null in Client mode where principal() should not be called
             if (listenerName == null)

@@ -50,7 +50,7 @@ public interface Authenticator extends Closeable {
     /**
      * Returns Principal using PrincipalBuilder
      */
-    KafkaPrincipal principal();
+    KafkaPrincipal principal(String clientId);
 
     /**
      * Returns the serializer/deserializer interface for principal

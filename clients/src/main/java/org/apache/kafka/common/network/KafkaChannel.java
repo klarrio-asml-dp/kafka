@@ -158,8 +158,8 @@ public class KafkaChannel implements AutoCloseable {
     /**
      * Returns the principal returned by `authenticator.principal()`.
      */
-    public KafkaPrincipal principal() {
-        return authenticator.principal();
+    public KafkaPrincipal principal(String clientId) {
+        return authenticator.principal(clientId);
     }
 
     public Optional<KafkaPrincipalSerde> principalSerde() {
