@@ -298,7 +298,7 @@ public class SaslServerAuthenticator implements Authenticator {
     }
 
     @Override
-    public KafkaPrincipal principal() {
+    public KafkaPrincipal principal(String clientId) {
         Optional<SSLSession> sslSession = transportLayer instanceof SslTransportLayer ?
                 Optional.of(((SslTransportLayer) transportLayer).sslSession()) : Optional.empty();
         SaslAuthenticationContext context = new SaslAuthenticationContext(saslServer, securityProtocol,
@@ -341,7 +341,7 @@ public class SaslServerAuthenticator implements Authenticator {
                     "Invalid saslHandshakeReceive in server-side re-authentication context: null");
         SaslServerAuthenticator previousSaslServerAuthenticator = (SaslServerAuthenticator) reauthenticationContext.previousAuthenticator();
         reauthInfo.reauthenticating(previousSaslServerAuthenticator.saslMechanism,
-                previousSaslServerAuthenticator.principal(), reauthenticationContext.reauthenticationBeginNanos());
+                previousSaslServerAuthenticator.principal(""), reauthenticationContext.reauthenticationBeginNanos());
         previousSaslServerAuthenticator.close();
         netInBuffer = saslHandshakeReceive;
         LOG.debug("Beginning re-authentication: {}", this);
@@ -414,7 +414,7 @@ public class SaslServerAuthenticator implements Authenticator {
             if (saslServer.isComplete()) {
                 reauthInfo.calcCompletionTimesAndReturnSessionLifetimeMs();
                 if (reauthInfo.reauthenticating())
-                    reauthInfo.ensurePrincipalUnchanged(principal());
+                    reauthInfo.ensurePrincipalUnchanged(principal(""));
             }
             if (response != null) {
                 netOutBuffer = ByteBufferSend.sizePrefixed(ByteBuffer.wrap(response));
@@ -451,7 +451,7 @@ public class SaslServerAuthenticator implements Authenticator {
                 byte[] responseToken = saslServer.evaluateResponse(
                         Utils.copyArray(saslAuthenticateRequest.data().authBytes()));
                 if (reauthInfo.reauthenticating() && saslServer.isComplete())
-                    reauthInfo.ensurePrincipalUnchanged(principal());
+                    reauthInfo.ensurePrincipalUnchanged(principal(""));
                 // For versions with SASL_AUTHENTICATE header, send a response to SASL_AUTHENTICATE request even if token is empty.
                 byte[] responseBytes = responseToken == null ? new byte[0] : responseToken;
                 long sessionLifetimeMs = !saslServer.isComplete() ? 0L

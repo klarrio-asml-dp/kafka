@@ -108,6 +108,7 @@ public class Selector implements Selectable, AutoCloseable {
     private boolean outOfMemory;
     private final List<NetworkSend> completedSends;
     private final LinkedHashMap<String, NetworkReceive> completedReceives;
+    private final LinkedHashMap<String, String> completedReceivesSpiffeIds;
     private final Set<SelectionKey> immediatelyConnectedKeys;
     private final Map<String, KafkaChannel> closingChannels;
     private Set<SelectionKey> keysWithBufferedRead;
@@ -167,6 +168,7 @@ public class Selector implements Selectable, AutoCloseable {
         this.outOfMemory = false;
         this.completedSends = new ArrayList<>();
         this.completedReceives = new LinkedHashMap<>();
+        this.completedReceivesSpiffeIds = new LinkedHashMap<>();
         this.immediatelyConnectedKeys = new HashSet<>();
         this.closingChannels = new HashMap<>();
         this.keysWithBufferedRead = new HashSet<>();
@@ -566,7 +568,7 @@ public class Selector implements Selectable, AutoCloseable {
                 Optional<NetworkReceive> responseReceivedDuringReauthentication = channel.pollResponseReceivedDuringReauthentication();
                 responseReceivedDuringReauthentication.ifPresent(receive -> {
                     long currentTimeMs = time.milliseconds();
-                    addToCompletedReceives(channel, receive, currentTimeMs);
+                    addToCompletedReceives(channel, receive, "", currentTimeMs);
                 });
 
                 //if channel is ready and has bytes to read from socket or buffer, and has no
@@ -671,15 +673,15 @@ public class Selector implements Selectable, AutoCloseable {
     private void attemptRead(KafkaChannel channel) throws IOException {
         String nodeId = channel.id();
 
-        long bytesReceived = channel.read();
-        if (bytesReceived != 0) {
+        Receive.SpiffeIdAndbytesRead spiffeIdAndbytesRead = channel.read();
+        if (spiffeIdAndbytesRead.getBytesRead() != 0) {
             long currentTimeMs = time.milliseconds();
-            sensors.recordBytesReceived(nodeId, bytesReceived, currentTimeMs);
+            sensors.recordBytesReceived(nodeId, spiffeIdAndbytesRead.getBytesRead(), currentTimeMs);
             madeReadProgressLastPoll = true;
 
             NetworkReceive receive = channel.maybeCompleteReceive();
             if (receive != null) {
-                addToCompletedReceives(channel, receive, currentTimeMs);
+                addToCompletedReceives(channel, receive, spiffeIdAndbytesRead.getSpiffeId(), currentTimeMs);
             }
         }
         if (channel.isMuted()) {
@@ -721,6 +723,11 @@ public class Selector implements Selectable, AutoCloseable {
     @Override
     public Collection<NetworkReceive> completedReceives() {
         return this.completedReceives.values();
+    }
+
+    @Override
+    public String completedReceiveSpiffeId(String channelId) {
+        return this.completedReceivesSpiffeIds.get(channelId);
     }
 
     @Override
@@ -810,6 +817,7 @@ public class Selector implements Selectable, AutoCloseable {
      */
     public void clearCompletedReceives() {
         this.completedReceives.clear();
+        this.completedReceivesSpiffeIds.clear();
     }
 
     /**
@@ -835,6 +843,7 @@ public class Selector implements Selectable, AutoCloseable {
     private void clear() {
         this.completedSends.clear();
         this.completedReceives.clear();
+        this.completedReceivesSpiffeIds.clear();
         this.connected.clear();
         this.disconnected.clear();
 
@@ -1046,11 +1055,12 @@ public class Selector implements Selectable, AutoCloseable {
     /**
      * adds a receive to completed receives
      */
-    private void addToCompletedReceives(KafkaChannel channel, NetworkReceive networkReceive, long currentTimeMs) {
+    private void addToCompletedReceives(KafkaChannel channel, NetworkReceive networkReceive, String spiffeId, long currentTimeMs) {
         if (hasCompletedReceive(channel))
             throw new IllegalStateException("Attempting to add second completed receive to channel " + channel.id());
 
         this.completedReceives.put(channel.id(), networkReceive);
+        this.completedReceivesSpiffeIds.put(channel.id(), spiffeId);
         sensors.recordCompletedReceive(channel.id(), networkReceive.size(), currentTimeMs);
     }
 

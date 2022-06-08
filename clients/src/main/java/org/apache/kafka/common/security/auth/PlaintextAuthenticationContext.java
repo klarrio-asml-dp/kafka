@@ -17,14 +17,21 @@
 package org.apache.kafka.common.security.auth;
 
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
+
+import org.apache.kafka.common.network.PlaintextTransportLayer;
 
 public class PlaintextAuthenticationContext implements AuthenticationContext {
     private final InetAddress clientAddress;
     private final String listenerName;
+    private final String clientId;
 
-    public PlaintextAuthenticationContext(InetAddress clientAddress, String listenerName) {
+    public PlaintextAuthenticationContext(InetAddress clientAddress, String listenerName, String clientId) {
         this.clientAddress = clientAddress;
         this.listenerName = listenerName;
+        this.clientId = clientId;
+
+        System.out.println("@@@@ PlainTextAuthenticationContext clientId " + clientId);
     }
 
     @Override
@@ -42,4 +49,7 @@ public class PlaintextAuthenticationContext implements AuthenticationContext {
         return listenerName;
     }
 
+    public String clientId() {
+        return "CN=" + clientId;
+    }
 }

@@ -69,8 +69,10 @@ public class DefaultKafkaPrincipalBuilder implements KafkaPrincipalBuilder, Kafk
     @Override
     public KafkaPrincipal build(AuthenticationContext context) {
         if (context instanceof PlaintextAuthenticationContext) {
-            System.out.println("@@@@ MATHIEU");
-            return KafkaPrincipal.ANONYMOUS;
+            System.out.println("@@@@ BUILD principal");
+            return new KafkaPrincipal(KafkaPrincipal.USER_TYPE, ((PlaintextAuthenticationContext) context).clientId());
+//            return KafkaPrincipal.ANONYMOUS;
+
         } else if (context instanceof SslAuthenticationContext) {
             SSLSession sslSession = ((SslAuthenticationContext) context).session();
             try {

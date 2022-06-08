@@ -483,7 +483,7 @@ public class SaslClientAuthenticator implements Authenticator {
         return serverPacket;
     }
 
-    public KafkaPrincipal principal() {
+    public KafkaPrincipal principal(String clientId) {
         return new KafkaPrincipal(KafkaPrincipal.USER_TYPE, clientPrincipalName);
     }
 

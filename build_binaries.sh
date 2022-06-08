@@ -10,5 +10,5 @@
 ./gradlew releaseTarG
 
 cd core/build/distributions/
-tar -xzf kafka_2.13-3.1.1-SNAPSHOT.tgz
+tar -xzf kafka_2.13-3.1.2-SNAPSHOT.tgz
 cd ../../../

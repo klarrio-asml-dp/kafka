@@ -43,7 +43,7 @@ public class DefaultKafkaPrincipalBuilderTest {
     public void testReturnAnonymousPrincipalForPlaintext() throws Exception {
         DefaultKafkaPrincipalBuilder builder = new DefaultKafkaPrincipalBuilder(null, null);
         assertEquals(KafkaPrincipal.ANONYMOUS, builder.build(
-                new PlaintextAuthenticationContext(InetAddress.getLocalHost(), SecurityProtocol.PLAINTEXT.name())));
+                new PlaintextAuthenticationContext(InetAddress.getLocalHost(), SecurityProtocol.PLAINTEXT.name(), null)));
     }
 
     @Test
