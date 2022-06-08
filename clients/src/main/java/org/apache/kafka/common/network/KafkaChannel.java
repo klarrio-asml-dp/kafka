@@ -394,18 +394,18 @@ public class KafkaChannel implements AutoCloseable {
         return null;
     }
 
-    public long read() throws IOException {
+    public Receive.SpiffeIdAndbytesRead read() throws IOException {
         if (receive == null) {
             receive = new NetworkReceive(maxReceiveSize, id, memoryPool);
         }
 
-        long bytesReceived = receive(this.receive);
+        Receive.SpiffeIdAndbytesRead spiffeIdAndbytesRead = receive(this.receive);
 
         if (this.receive.requiredMemoryAmountKnown() && !this.receive.memoryAllocated() && isInMutableState()) {
             //pool must be out of memory, mute ourselves.
             mute();
         }
-        return bytesReceived;
+        return spiffeIdAndbytesRead;
     }
 
     public NetworkReceive currentReceive() {
@@ -447,7 +447,7 @@ public class KafkaChannel implements AutoCloseable {
         return current;
     }
 
-    private long receive(NetworkReceive receive) throws IOException {
+    private Receive.SpiffeIdAndbytesRead receive(NetworkReceive receive) throws IOException {
         try {
             return receive.readFrom(transportLayer);
         } catch (SslAuthenticationException e) {
