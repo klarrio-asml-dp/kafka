@@ -726,6 +726,11 @@ public class Selector implements Selectable, AutoCloseable {
     }
 
     @Override
+    public String completedReceiveSpiffeId(String channelId) {
+        return this.completedReceivesSpiffeIds.get(channelId);
+    }
+
+    @Override
     public Map<String, ChannelState> disconnected() {
         return this.disconnected;
     }
