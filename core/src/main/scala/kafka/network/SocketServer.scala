@@ -1360,8 +1360,8 @@ class ConnectionQuotas(config: KafkaConfig, time: Time, metrics: Metrics) extend
   def updateIpConnectionRateQuota(ip: Option[InetAddress], maxConnectionRate: Option[Int]): Unit = synchronized {
     def isIpConnectionRateMetric(metricName: MetricName) = {
       metricName.name == ConnectionRateMetricName &&
-        metricName.group == MetricsGroup &&
-        metricName.tags.containsKey(IpMetricTag)
+      metricName.group == MetricsGroup &&
+      metricName.tags.containsKey(IpMetricTag)
     }
 
     def shouldUpdateQuota(metric: KafkaMetric, quotaLimit: Int) = {

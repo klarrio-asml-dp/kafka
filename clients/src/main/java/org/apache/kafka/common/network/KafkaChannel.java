@@ -528,7 +528,7 @@ public class KafkaChannel implements AutoCloseable {
      *             if this channel is not "ready"
      */
     public boolean maybeBeginServerReauthentication(NetworkReceive saslHandshakeNetworkReceive,
-                                                    Supplier<Long> nowNanosSupplier) throws AuthenticationException, IOException {
+            Supplier<Long> nowNanosSupplier) throws AuthenticationException, IOException {
         if (!ready())
             throw new IllegalStateException(
                     "KafkaChannel should be \"ready\" when processing SASL Handshake for potential re-authentication");

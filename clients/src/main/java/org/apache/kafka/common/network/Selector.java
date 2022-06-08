@@ -145,17 +145,17 @@ public class Selector implements Selectable, AutoCloseable {
      * @param logContext Context for logging with additional info
      */
     public Selector(int maxReceiveSize,
-                    long connectionMaxIdleMs,
-                    int failedAuthenticationDelayMs,
-                    Metrics metrics,
-                    Time time,
-                    String metricGrpPrefix,
-                    Map<String, String> metricTags,
-                    boolean metricsPerConnection,
-                    boolean recordTimePerConnection,
-                    ChannelBuilder channelBuilder,
-                    MemoryPool memoryPool,
-                    LogContext logContext) {
+            long connectionMaxIdleMs,
+            int failedAuthenticationDelayMs,
+            Metrics metrics,
+            Time time,
+            String metricGrpPrefix,
+            Map<String, String> metricTags,
+            boolean metricsPerConnection,
+            boolean recordTimePerConnection,
+            ChannelBuilder channelBuilder,
+            MemoryPool memoryPool,
+            LogContext logContext) {
         try {
             this.nioSelector = java.nio.channels.Selector.open();
         } catch (IOException e) {
@@ -338,7 +338,7 @@ public class Selector implements Selectable, AutoCloseable {
     private KafkaChannel buildAndAttachKafkaChannel(SocketChannel socketChannel, String id, SelectionKey key) throws IOException {
         try {
             KafkaChannel channel = channelBuilder.buildChannel(id, key, maxReceiveSize, memoryPool,
-                    new SelectorChannelMetadataRegistry());
+                new SelectorChannelMetadataRegistry());
             key.attach(channel);
             return channel;
         } catch (Exception e) {
@@ -550,17 +550,17 @@ public class Selector implements Selectable, AutoCloseable {
                             sensors.successfulReauthentication.record(1.0, readyTimeMs);
                             if (channel.reauthenticationLatencyMs() == null)
                                 log.warn(
-                                        "Should never happen: re-authentication latency for a re-authenticated channel was null; continuing...");
+                                    "Should never happen: re-authentication latency for a re-authenticated channel was null; continuing...");
                             else
                                 sensors.reauthenticationLatency
-                                        .record(channel.reauthenticationLatencyMs().doubleValue(), readyTimeMs);
+                                    .record(channel.reauthenticationLatencyMs().doubleValue(), readyTimeMs);
                         } else {
                             sensors.successfulAuthentication.record(1.0, readyTimeMs);
                             if (!channel.connectedClientSupportsReauthentication())
                                 sensors.successfulAuthenticationNoReauth.record(1.0, readyTimeMs);
                         }
                         log.debug("Successfully {}authenticated with {}", isReauthentication ?
-                                "re-" : "", channel.socketDescription());
+                            "re-" : "", channel.socketDescription());
                     }
                 }
                 if (channel.ready() && channel.state() == ChannelState.NOT_CONNECTED)
@@ -616,7 +616,7 @@ public class Selector implements Selectable, AutoCloseable {
                     if (e instanceof DelayedResponseAuthenticationException)
                         exceptionMessage = e.getCause().getMessage();
                     log.info("Failed {}authentication with {} ({})", isReauthentication ? "re-" : "",
-                            desc, exceptionMessage);
+                        desc, exceptionMessage);
                 } else {
                     log.warn("Unexpected error from {}; closing connection", desc, e);
                 }
@@ -1245,22 +1245,22 @@ public class Selector implements Selectable, AutoCloseable {
             this.ioTime.add(createIOThreadRatioMeter(metrics, metricGrpName, metricTags, "io", "doing I/O"));
 
             this.connectionsByCipher = new IntGaugeSuite<>(log, "sslCiphers", metrics,
-                    cipherInformation -> {
-                        Map<String, String> tags = new LinkedHashMap<>();
-                        tags.put("cipher", cipherInformation.cipher());
-                        tags.put("protocol", cipherInformation.protocol());
-                        tags.putAll(metricTags);
-                        return metrics.metricName("connections", metricGrpName, "The number of connections with this SSL cipher and protocol.", tags);
-                    }, 100);
+                cipherInformation -> {
+                    Map<String, String> tags = new LinkedHashMap<>();
+                    tags.put("cipher", cipherInformation.cipher());
+                    tags.put("protocol", cipherInformation.protocol());
+                    tags.putAll(metricTags);
+                    return metrics.metricName("connections", metricGrpName, "The number of connections with this SSL cipher and protocol.", tags);
+                }, 100);
 
             this.connectionsByClient = new IntGaugeSuite<>(log, "clients", metrics,
-                    clientInformation -> {
-                        Map<String, String> tags = new LinkedHashMap<>();
-                        tags.put("clientSoftwareName", clientInformation.softwareName());
-                        tags.put("clientSoftwareVersion", clientInformation.softwareVersion());
-                        tags.putAll(metricTags);
-                        return metrics.metricName("connections", metricGrpName, "The number of connections with this client and version.", tags);
-                    }, 100);
+                clientInformation -> {
+                    Map<String, String> tags = new LinkedHashMap<>();
+                    tags.put("clientSoftwareName", clientInformation.softwareName());
+                    tags.put("clientSoftwareVersion", clientInformation.softwareVersion());
+                    tags.putAll(metricTags);
+                    return metrics.metricName("connections", metricGrpName, "The number of connections with this client and version.", tags);
+                }, 100);
 
             metricName = metrics.metricName("connection-count", metricGrpName, "The current number of active connections.", metricTags);
             topLevelMetricNames.add(metricName);
@@ -1268,11 +1268,11 @@ public class Selector implements Selectable, AutoCloseable {
         }
 
         private Meter createMeter(Metrics metrics, String groupName, Map<String, String> metricTags,
-                                  SampledStat stat, String baseName, String descriptiveName) {
+                SampledStat stat, String baseName, String descriptiveName) {
             MetricName rateMetricName = metrics.metricName(baseName + "-rate", groupName,
-                    String.format("The number of %s per second", descriptiveName), metricTags);
+                            String.format("The number of %s per second", descriptiveName), metricTags);
             MetricName totalMetricName = metrics.metricName(baseName + "-total", groupName,
-                    String.format("The total number of %s", descriptiveName), metricTags);
+                            String.format("The total number of %s", descriptiveName), metricTags);
             if (stat == null)
                 return new Meter(rateMetricName, totalMetricName);
             else
@@ -1280,7 +1280,7 @@ public class Selector implements Selectable, AutoCloseable {
         }
 
         private Meter createMeter(Metrics metrics, String groupName,  Map<String, String> metricTags,
-                                  String baseName, String descriptiveName) {
+                String baseName, String descriptiveName) {
             return createMeter(metrics, groupName, metricTags, null, baseName, descriptiveName);
         }
 
@@ -1291,7 +1291,7 @@ public class Selector implements Selectable, AutoCloseable {
          */
         @Deprecated
         private Meter createIOThreadRatioMeterLegacy(Metrics metrics, String groupName,  Map<String, String> metricTags,
-                                                     String baseName, String action) {
+                String baseName, String action) {
             MetricName rateMetricName = metrics.metricName(baseName + "-ratio", groupName,
                     String.format("*Deprecated* The fraction of time the I/O thread spent %s", action), metricTags);
             MetricName totalMetricName = metrics.metricName(baseName + "time-total", groupName,
@@ -1302,9 +1302,9 @@ public class Selector implements Selectable, AutoCloseable {
         private Meter createIOThreadRatioMeter(Metrics metrics, String groupName,  Map<String, String> metricTags,
                                                String baseName, String action) {
             MetricName rateMetricName = metrics.metricName(baseName + "-ratio", groupName,
-                    String.format("The fraction of time the I/O thread spent %s", action), metricTags);
+                String.format("The fraction of time the I/O thread spent %s", action), metricTags);
             MetricName totalMetricName = metrics.metricName(baseName + "-time-ns-total", groupName,
-                    String.format("The total time the I/O thread spent %s", action), metricTags);
+                String.format("The total time the I/O thread spent %s", action), metricTags);
             return new Meter(TimeUnit.NANOSECONDS, rateMetricName, totalMetricName);
         }
 
