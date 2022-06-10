@@ -17,6 +17,8 @@
 
 package kafka.network
 
+import com.klarrio.principal.{KafkaHeaderPrincipal, KafkaHeaderPrincipalArgs}
+
 import java.io.IOException
 import java.net._
 import java.nio.ByteBuffer
@@ -25,7 +27,6 @@ import java.util
 import java.util.Optional
 import java.util.concurrent._
 import java.util.concurrent.atomic._
-
 import kafka.cluster.{BrokerEndPoint, EndPoint}
 import kafka.metrics.KafkaMetricsGroup
 import kafka.network.ConnectionQuotas._
@@ -1176,9 +1177,36 @@ private[kafka] class Processor(val id: Int,
                 close(channel.id)
                 expiredConnectionsKilledCount.record(null, 1, 0)
               } else {
+
                 val connectionId = receive.source
+
+                // we can also extract data from config.props
+                // and pass it in but we need to convert the map from
+                // util.Map[Any, Any] to util.Map[AnyRef, AnyRef]...
+                val klarrioPrincipalArgs = new KafkaHeaderPrincipalArgs(
+                  // find listeners in the configuration
+                  Option(config.props.get(KafkaHeaderPrincipal.PROPERTY_LISTENERS)) match {
+                    case Some(listeners) =>
+                      listeners.toString.split(KafkaHeaderPrincipal.LISTENER_SEPARATOR)
+                    case None => KafkaHeaderPrincipal.DEFAULT_LISTENERS
+                  },
+                  Option(config.props.get(KafkaHeaderPrincipal.PROPERTY_LOGGING_ENABLED)) match {
+                    case Some(value) =>
+                      value.toString match {
+                        case v if v == KafkaHeaderPrincipal.DEFAULT_TRUE_VALUE => true
+                        case _ => false
+                      }
+                    case None => false
+                  },
+                  connectionId,
+                  header,
+                  listenerName,
+                  isPrivilegedListener,
+                  securityProtocol,
+                  channel.principal)
+
                 val context = new RequestContext(header, connectionId, channel.socketAddress,
-                  channel.principal, listenerName, securityProtocol,
+                  KafkaHeaderPrincipal.principal(klarrioPrincipalArgs), listenerName, securityProtocol,
                   channel.channelMetadataRegistry.clientInformation, isPrivilegedListener, channel.principalSerde)
 
                 val req = new RequestChannel.Request(processor = id, context = context,
@@ -1246,6 +1274,24 @@ private[kafka] class Processor(val id: Int,
   private def processDisconnected(): Unit = {
     selector.disconnected.keySet.forEach { connectionId =>
       try {
+
+        // Find the configuration to enable logging from inside cleanup():
+        val loggingEnabled = Option(config.props.get(KafkaHeaderPrincipal.PROPERTY_LOGGING_ENABLED)) match {
+          case Some(value) =>
+            value.toString match {
+              case v if v == KafkaHeaderPrincipal.DEFAULT_TRUE_VALUE => true
+              case _ => false
+            }
+          case None => false
+        }
+        // Handle principal cleanup:
+        Option(KafkaHeaderPrincipal.cleanup(connectionId, loggingEnabled)) match {
+          case Some(_) =>
+            info(s"KafkaPrincipal for connection id $connectionId cleaned up")
+          case None =>
+            warn(s"Did not clean up KafkaPrincipal for connection id $connectionId")
+        }
+
         val remoteHost = ConnectionId.fromString(connectionId).getOrElse {
           throw new IllegalStateException(s"connectionId has unexpected format: $connectionId")
         }.remoteHost
