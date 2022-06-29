@@ -22,6 +22,7 @@ public class KafkaHeaderPrincipalTest {
         KafkaHeaderPrincipalArgs args = new KafkaHeaderPrincipalArgs(
                 listeners,
                 loggingEnabled,
+                "CN=self-user",
                 connectionId,
                 new RequestHeader(ApiKeys.METADATA, (short)1, "ns-sa", 0),
                 new ListenerName("test"),

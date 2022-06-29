@@ -11,6 +11,7 @@ public class KafkaHeaderPrincipalArgs {
 
     private final ArrayList<String> listeners;
     private final boolean loggingEnabled;
+    private final String selfUser;
     private final String connectionId;
     private final RequestHeader header;
     private final ListenerName listenerName;
@@ -20,6 +21,7 @@ public class KafkaHeaderPrincipalArgs {
 
     public KafkaHeaderPrincipalArgs(String[] listeners,
                                     boolean loggingEnabled,
+                                    String selfUser,
                                     String connectionId,
                                     RequestHeader header,
                                     ListenerName listenerName,
@@ -31,6 +33,7 @@ public class KafkaHeaderPrincipalArgs {
             this.listeners.add(listeners[i]);
         }
         this.loggingEnabled = loggingEnabled;
+        this.selfUser = selfUser;
         this.connectionId = connectionId;
         this.header = header;
         this.listenerName = listenerName;
@@ -45,6 +48,10 @@ public class KafkaHeaderPrincipalArgs {
 
     public boolean isLoggingEnabled() {
         return loggingEnabled;
+    }
+
+    public String getSelfUser() {
+        return selfUser;
     }
 
     public String getConnectionId() {

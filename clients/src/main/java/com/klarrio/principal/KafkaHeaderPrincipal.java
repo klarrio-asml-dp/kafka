@@ -8,9 +8,11 @@ public class KafkaHeaderPrincipal {
 
     public static final String PROPERTY_LOGGING_ENABLED = "com.klarrio.principal.logging-enabled";
     public static final String PROPERTY_LISTENERS = "com.klarrio.principal.listeners";
+    public static final String PROPERTY_SELF_USER = "com.klarrio.principal.self-user";
     public static final String[] DEFAULT_LISTENERS = {"NOT-CONFIGURED-9092"};
     public static final String LISTENER_SEPARATOR = ",";
     public static final String DEFAULT_TRUE_VALUE = "true";
+    public static final String DEFAULT_SELF_USER = "ANONYMOUS";
 
     private static final ConcurrentHashMap<String, KafkaPrincipal> principals = new ConcurrentHashMap<>();
 
@@ -53,7 +55,9 @@ public class KafkaHeaderPrincipal {
                         args.getHeader().clientId());
                 System.out.println(createMessage);
             }
-            String principalUser = String.format("CN=%s", args.getHeader().clientId());
+            String clientId = args.getHeader().clientId();
+            boolean isSelfUser = !clientId.startsWith("spiffe://");
+            String principalUser = isSelfUser ? args.getSelfUser() : clientId;
             return new KafkaPrincipal(
                     KafkaPrincipal.USER_TYPE,
                     principalUser);

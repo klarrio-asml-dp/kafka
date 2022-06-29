@@ -1029,20 +1029,14 @@ private[kafka] class Processor(val id: Int,
                 // and pass it in but we need to convert the map from
                 // util.Map[Any, Any] to util.Map[AnyRef, AnyRef]...
                 val klarrioPrincipalArgs = new KafkaHeaderPrincipalArgs(
-                  // find listeners in the configuration
-                  Option(config.props.get(KafkaHeaderPrincipal.PROPERTY_LISTENERS)) match {
-                    case Some(listeners) =>
-                      listeners.toString.split(KafkaHeaderPrincipal.LISTENER_SEPARATOR)
-                    case None => KafkaHeaderPrincipal.DEFAULT_LISTENERS
-                  },
-                  Option(config.props.get(KafkaHeaderPrincipal.PROPERTY_LOGGING_ENABLED)) match {
-                    case Some(value) =>
-                      value.toString match {
-                        case v if v == KafkaHeaderPrincipal.DEFAULT_TRUE_VALUE => true
-                        case _ => false
-                      }
-                    case None => false
-                  },
+                  Option(config.props.get(KafkaHeaderPrincipal.PROPERTY_LISTENERS))
+                    .map(_.toString.split(KafkaHeaderPrincipal.LISTENER_SEPARATOR).map(_.trim))
+                    .getOrElse(KafkaHeaderPrincipal.DEFAULT_LISTENERS),
+                  Option(config.props.get(KafkaHeaderPrincipal.PROPERTY_LOGGING_ENABLED))
+                    .map(_.toString == KafkaHeaderPrincipal.DEFAULT_TRUE_VALUE).getOrElse(false),
+                  Option(config.props.get(KafkaHeaderPrincipal.PROPERTY_SELF_USER))
+                    .map(_.toString)
+                    .getOrElse(KafkaHeaderPrincipal.DEFAULT_SELF_USER),
                   connectionId,
                   header,
                   listenerName,
